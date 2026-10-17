@@ -110,7 +110,7 @@ pisa_mexico/
 ## 6. Convenciones de código
 
 - Todo el texto de la interfaz, comentarios y nombres de secciones **en español**.
-- Usar `width="stretch"` en lugar de `use_container_width=True` (deprecado en Streamlit).
+- Usar `width="stretch"` en lugar de `use_container_width=True` (deprecado) en `st.dataframe`. En `st.plotly_chart` (Streamlit 1.50) no pasar `width`: ya ocupa todo el ancho por defecto.
 - Dar `key` única a cada widget (`st.selectbox`, etc.) para evitar conflictos entre pestañas.
 - No modificar el CSV original: la limpieza se hace en memoria y se documenta en la pestaña 2.
 - Las gráficas llevan título, ejes con etiqueta en español y una frase de interpretación debajo.
