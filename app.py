@@ -33,6 +33,9 @@ def cargar_datos():
 
 df = cargar_datos()
 
+# Dataset limpio (decisiones documentadas en la pestaña 2)
+df_limpio, _ = limpiar.preparar_datos(df)
+
 # ----------------------------------
 # PESTAÑAS
 # ----------------------------------
@@ -59,16 +62,16 @@ with tab_limpiar:
     limpiar.mostrar(df)
 
 with tab_descriptiva:
-    descriptiva.mostrar(df)
+    descriptiva.mostrar(df_limpio)
 
 with tab_predictiva:
-    predictiva.mostrar(df)
+    predictiva.mostrar(df_limpio)
 
 with tab_prescriptiva:
-    prescriptiva.mostrar(df)
+    prescriptiva.mostrar(df_limpio)
 
 with tab_decisiones:
-    decisiones.mostrar(df)
+    decisiones.mostrar(df_limpio)
 
 st.divider()
 st.caption(
