@@ -47,12 +47,12 @@ df_limpio, _ = limpiar.preparar_datos(df)
     tab_prescriptiva,
     tab_decisiones,
 ) = st.tabs([
-    "1. Entender",
-    "2. Limpiar",
-    "3. Descriptiva",
-    "4. Predictiva",
-    "5. Prescriptiva",
-    "6. Decisiones",
+    "1\\. Entender",
+    "2\\. Limpiar",
+    "3\\. Descriptiva",
+    "4\\. Predictiva",
+    "5\\. Prescriptiva",
+    "6\\. Decisiones",
 ])
 
 with tab_entender:
