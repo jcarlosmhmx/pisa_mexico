@@ -116,12 +116,18 @@ def mostrar(df):
     col1, col2, col3, col4 = st.columns(4)
 
     with col1:
-        st.metric("Alumnos", f"{len(limpio):,}", delta=f"{len(limpio) - len(df)} filas")
+        st.metric(
+            "Alumnos",
+            f"{len(limpio):,}",
+            delta=f"{len(limpio) - len(df)} eliminados",
+            delta_color="off",
+        )
     with col2:
         st.metric(
             "Variables",
             len(limpio.columns),
             delta=f"{len(limpio.columns) - len(df.columns)} columnas",
+            delta_color="off",
         )
     with col3:
         st.metric("Nulos antes", f"{int(df.isnull().sum().sum()):,}")
@@ -195,7 +201,7 @@ def mostrar(df):
     # DECISIONES
     # ----------------------------------
     st.subheader("Decisiones de limpieza")
-    st.dataframe(bitacora, width="stretch", hide_index=True)
+    st.table(bitacora.set_index("Problema"))
 
     # ----------------------------------
     # RESULTADO
