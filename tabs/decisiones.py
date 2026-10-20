@@ -1,7 +1,11 @@
+import numpy as np
+import pandas as pd
 import streamlit as st
+from scipy.stats import chi2_contingency
 
 from tabs.comun import (
     entrenar_modelo, perfil_por_riesgo, escuelas_prioritarias, PLAN, NIVELES_RIESGO,
+    UMBRAL_RIESGO_ALTO, UMBRAL_RIESGO_MEDIO,
 )
 
 
@@ -103,6 +107,61 @@ def mostrar(df):
     st.markdown(f"**Meta medible:** {plan['meta']}.")
 
     # ----------------------------------
+    # CAMBIOS TRAS LA REVISIÓN DE UN COMPAÑERO
+    # ----------------------------------
+    st.divider()
+    st.markdown("#### 🔍 ¿Qué tan sólida es esta evidencia?")
+    st.caption("Sección agregada tras la revisión de un compañero.")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.markdown("**¿Cómo se definió el grupo?**")
+        st.markdown(
+            f"Cada alumno recibe una probabilidad de **no** alcanzar el Nivel 2 según 7 "
+            f"variables: índice socioeconómico (ESCS), computadora, internet, libros en casa "
+            f"(dos variables), género y preguntas sin responder. **Riesgo alto** = "
+            f"probabilidad ≥ {UMBRAL_RIESGO_ALTO:.0%}; **medio** = "
+            f"{UMBRAL_RIESGO_MEDIO:.0%}–{UMBRAL_RIESGO_ALTO:.0%}; **bajo** = "
+            f"< {UMBRAL_RIESGO_MEDIO:.0%}. El nivel socioeconómico ya está en el modelo, "
+            "así que el efecto de la computadora se mide comparando alumnos de nivel similar."
+        )
+
+    with col2:
+        st.markdown("**¿Las diferencias son significativas?**")
+        tabla = pd.crosstab(resultado["nivel_riesgo"], resultado["alcanza_nivel2_mat"])
+        chi2, p_valor, _, _ = chi2_contingency(tabla)
+
+        alto = resultado.loc[resultado["nivel_riesgo"] == "Riesgo alto", "alcanza_nivel2_mat"]
+        bajo = resultado.loc[resultado["nivel_riesgo"] == "Riesgo bajo", "alcanza_nivel2_mat"]
+        dif = alto.mean() - bajo.mean()
+        ee = np.sqrt(alto.mean() * (1 - alto.mean()) / len(alto)
+                     + bajo.mean() * (1 - bajo.mean()) / len(bajo))
+        st.metric(
+            "Diferencia riesgo alto vs. bajo (% que no alcanza)",
+            f"{-dif * 100:.0f} pp",
+            help="Diferencia en puntos porcentuales con intervalo de confianza de 95%.",
+        )
+        st.markdown(
+            f"IC 95%: **{(-dif - 1.96 * ee) * 100:.0f} a {(-dif + 1.96 * ee) * 100:.0f} pp**. "
+            f"Prueba ji cuadrada: p < 0.001. La diferencia entre grupos **no es azar**."
+        )
+
+    st.markdown("**De la decisión a un piloto con evaluación**")
+    st.table(pd.DataFrame({
+        "Etapa": ["1. Piloto", "2. Indicadores", "3. Evaluación", "4. Decisión"],
+        "Qué se hace": [
+            f"Tutoría en 20 de las {len(prioritarias)} escuelas prioritarias, elegidas al azar; "
+            "otras 20 sirven como grupo de comparación.",
+            "Asistencia a tutorías, puntaje en una prueba diagnóstica de matemáticas y "
+            "% que alcanza el nivel mínimo.",
+            "Medición al inicio y a los 6 meses en ambos grupos; se compara la mejora.",
+            "Si la mejora del grupo con tutoría es mayor, se amplía a las demás escuelas; "
+            "si no, se ajusta la intervención.",
+        ],
+    }).set_index("Etapa"))
+
+    # ----------------------------------
     # ALCANCE
     # ----------------------------------
     with st.expander("⚠️ Alcance y límites de esta decisión"):
@@ -115,5 +174,8 @@ def mostrar(df):
             "no garantiza por sí sola una mejora.\n"
             "- Los datos son de **PISA 2022**; en PISA 2025 México bajó a 388 puntos en "
             "matemáticas, por lo que el reto probablemente es mayor.\n"
+            "- La muestra es representativa a nivel nacional (por eso se usan pesos "
+            "muestrales), pero **no permite conclusiones por entidad** ni sobre la "
+            "ubicación urbana o rural de la escuela.\n"
             "- La decisión final debe validarse con docentes y familias."
         )
