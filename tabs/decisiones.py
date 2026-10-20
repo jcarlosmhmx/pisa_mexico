@@ -142,9 +142,14 @@ def mostrar(df):
             f"{-dif * 100:.0f} pp",
             help="Diferencia en puntos porcentuales con intervalo de confianza de 95%.",
         )
+        p_texto = "p < 0.001" if p_valor < 0.001 else f"p = {p_valor:.3f}"
+        conclusion = (
+            "La diferencia entre grupos **no es azar**." if p_valor < 0.05
+            else "La diferencia entre grupos **no es estadísticamente significativa**."
+        )
         st.markdown(
             f"IC 95%: **{(-dif - 1.96 * ee) * 100:.0f} a {(-dif + 1.96 * ee) * 100:.0f} pp**. "
-            f"Prueba ji cuadrada: p < 0.001. La diferencia entre grupos **no es azar**."
+            f"Prueba ji cuadrada: {p_texto}. {conclusion}"
         )
 
     st.markdown("**De la decisión a un piloto con evaluación**")
